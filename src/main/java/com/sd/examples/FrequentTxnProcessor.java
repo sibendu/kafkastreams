@@ -37,7 +37,7 @@ import java.util.Properties;
  * split each text line into words and then compute the word occurence histogram, write the continuous updated histogram
  * into a topic "streams-wordcount-output" where each record is an updated count of a single word.
  */
-public class RepeatedTxn {
+public class FrequentTxnProcessor {
 
     public static void main(String[] args) throws Exception {
     	System.out.println("Starting ..");
@@ -77,8 +77,8 @@ public class RepeatedTxn {
           .groupByKey()
           .windowedBy(TimeWindows.of(Duration.ofMinutes(1)))
           .count()
-          // get users whose one-minute count is >= 4
-          .filter((windowedUserId, count) -> count >= 4);
+          // get users whose one-minute count is >= 3
+          .filter((windowedUserId, count) -> count >= 3);
 
         // Note: The following operations would NOT be needed for the actual anomaly detection,
         // which would normally stop at the filter() above.  We use the operations below only to
@@ -95,7 +95,7 @@ public class RepeatedTxn {
           .map((windowedUserId, count) -> new KeyValue<>(windowedUserId.toString(), count));
 
         // write to the result topic
-        anomalousUsersForConsole.to(outputTopic, Produced.with(stringSerde, longSerde));
+        anomalousUsersForConsole.to(outputTopic, Produced.with(stringSerde, longSerde)); 
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
         // Always (and unconditionally) clean local state prior to starting the processing topology.
