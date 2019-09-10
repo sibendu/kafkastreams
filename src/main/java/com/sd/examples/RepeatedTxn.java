@@ -41,15 +41,15 @@ public class RepeatedTxn {
 
     public static void main(String[] args) throws Exception {
     	System.out.println("Starting ..");
-    	final String bootstrapServers = args.length > 0 ? args[0] : "localhost:9092";
-    	final String inputTopic = "input";
-    	final String outputTopic = "alert_accounts";    	
+    	String bootstrapServers = args.length > 0 ? args[0] : "localhost:9092";
+    	String inputTopic = args.length > 1 ? args[1] : "input";
+    	String outputTopic = args.length > 2 ? args[2] : "alert_accounts";    	
     	
         final Properties streamsConfiguration = new Properties();
         // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
         // against which the application is run.
-        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "anomaly-detection-lambda-example");
-        streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "anomaly-detection-lambda-example-client");
+        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "anomaly-detection-example");
+        streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "anomaly-detection-example-client");
         // Where to find Kafka broker(s).
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         // Specify default (de)serializers for record keys and for record values.
