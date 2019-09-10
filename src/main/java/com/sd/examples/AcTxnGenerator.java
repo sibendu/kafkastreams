@@ -5,7 +5,15 @@ public class AcTxnGenerator {
 	public static void main(String[] args) throws Exception{
 		
 		String url = args.length > 0 ? args[0] : "localhost:9092";
+		if(System.getenv("KAFKA_BROKER_URL") != null) {
+			url = System.getenv("KAFKA_BROKER_URL");
+		}
+		
 		String topic = args.length > 1 ? args[1] : "input";
+		if(System.getenv("KAFKA_TOPIC") != null) {
+			topic = System.getenv("KAFKA_TOPIC");
+		}
+		
 		String client = "AcTxnGenerator";
 		
 		System.out.println("Producing messages to : "+url+" : "+topic);
