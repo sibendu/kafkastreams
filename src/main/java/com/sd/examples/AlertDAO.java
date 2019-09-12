@@ -43,12 +43,17 @@ class AlertDAO {
 	public void processAlert(String type, Date created_date, String account, Integer no_access, String details,
 			String status) throws Exception {
 		Class.forName("com.mysql.jdbc.Driver");
+		System.out.println(url+"-"+user+"-"+password);
 		Connection con = DriverManager.getConnection("jdbc:mysql://"+url,user, password);
+		System.out.println(con);
+		
 		Statement stmt = con.createStatement();
 
 		String query = "insert into account_alerts (type,created_date,account,no_access,details,status) " + " VALUES ('"
 				+ type + "', CURDATE() , '" + account + "' , " + no_access + " , '" + details + "' ,'" + status + "') ";
-
+		
+		System.out.println(query);
+		
 		stmt.execute(query);
 		
 		con.close();
