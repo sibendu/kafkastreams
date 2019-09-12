@@ -41,9 +41,22 @@ public class FrequentTxnProcessor {
 
     public static void main(String[] args) throws Exception {
     	System.out.println("Starting ..");
+    	
     	String bootstrapServers = args.length > 0 ? args[0] : "localhost:9092";
     	String inputTopic = args.length > 1 ? args[1] : "input";
-    	String outputTopic = args.length > 2 ? args[2] : "alert_accounts";    	
+    	String outputTopic = args.length > 2 ? args[2] : "alert_accounts";    
+    	
+		if(System.getenv("KAFKA_BROKER_URL") != null) {
+			bootstrapServers = System.getenv("KAFKA_BROKER_URL");
+		}
+		
+		if(System.getenv("KAFKA_TOPIC") != null) {
+			inputTopic = System.getenv("KAFKA_TOPIC");
+		}
+		
+		if(System.getenv("KAFKA_TOPIC_OUT") != null) {
+			outputTopic = System.getenv("KAFKA_TOPIC_OUT");
+		}
     	
         final Properties streamsConfiguration = new Properties();
         // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
