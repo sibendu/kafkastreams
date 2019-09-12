@@ -66,9 +66,9 @@ public class AlertHandler extends Thread {
 			ConsumerRecords<Integer, String> records = consumer.poll(1000);
 			for (ConsumerRecord record : records) {
 				
-				String account = record.key().toString() ;
+				String account = record.key() == null? "":record.key().toString() ;
 				String details = account;
-				String value = record.value().toString();
+				String value = record.value() ==null? "":record.value().toString();
 				
 				System.out.println("Received message: (" + account + ", " + value + ") at offset "
 						+ record.offset());

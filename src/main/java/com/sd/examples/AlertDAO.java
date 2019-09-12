@@ -23,17 +23,17 @@ class AlertDAO {
 	
 	public AlertDAO(String url, String user, String password) {
 		
-		if(System.getenv("DB_URL") != null) {
-			url = System.getenv("DB_URL");
-		}
-		
-		if(System.getenv("DB_USER") != null) {
-			user = System.getenv("DB_USER");
-		}
-		
-		if(System.getenv("DB_PWD") != null) {
-			password = System.getenv("DB_PWD");
-		}		
+//		if(System.getenv("DB_URL") != null) {
+//			url = System.getenv("DB_URL");
+//		}
+//		
+//		if(System.getenv("DB_USER") != null) {
+//			user = System.getenv("DB_USER");
+//		}
+//		
+//		if(System.getenv("DB_PWD") != null) {
+//			password = System.getenv("DB_PWD");
+//		}		
 		
 		this.url = url;
 		this.user = user;
