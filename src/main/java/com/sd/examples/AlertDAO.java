@@ -8,7 +8,7 @@ class AlertDAO {
 	private String user = null;
 	private String password = null;
 	
-	public static void main(String args[]) {
+	public static void main(String args[]) throws Exception {
 		 
 		AlertDAO dao = new AlertDAO("localhost:3306/kafka", "root", "password");
 		
@@ -36,7 +36,8 @@ class AlertDAO {
 		String query = "insert into account_alerts (type,created_date,account,no_access,details,status) " + " VALUES ('"
 				+ type + "', CURDATE() , '" + account + "' , " + no_access + " , '" + details + "' ,'" + status + "') ";
 
-		ResultSet rs = stmt.execute(query);
+		stmt.execute(query);
+		
 		con.close();
 	}
 
