@@ -37,11 +37,11 @@ public class AlertHandler extends Thread {
 
 		dao = new AlertDAO(System.getenv("DB_URL"), System.getenv("DB_USER"), System.getenv("DB_PWD"));
 
-		SampleKafkaConsumer consumer = new SampleKafkaConsumer(bootstrapServers, inputTopic, clientId);
+		AlertHandler consumer = new AlertHandler(bootstrapServers, inputTopic, clientId);
 		consumer.run();
 	}
 
-	public SampleKafkaConsumer(String url, String topic, String clientId) {
+	public AlertHandler(String url, String topic, String clientId) {
 		this.topic = topic;
 		this.clientId = clientId;
 
