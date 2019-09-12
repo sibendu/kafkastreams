@@ -35,7 +35,6 @@ public class AlertHandler extends Thread {
 		System.out.println("Starting consumer..");
 		String clientId = "SampleKafkaConsumer";
 
-		dao = new AlertDAO(System.getenv("DB_URL"), System.getenv("DB_USER"), System.getenv("DB_PWD"));
 
 		AlertHandler consumer = new AlertHandler(bootstrapServers, inputTopic, clientId);
 		consumer.run();
@@ -57,6 +56,8 @@ public class AlertHandler extends Thread {
 				"org.apache.kafka.common.serialization.StringDeserializer");
 
 		consumer = new KafkaConsumer(props);
+		
+		dao = new AlertDAO(System.getenv("DB_URL"), System.getenv("DB_USER"), System.getenv("DB_PWD"));
 	}
 
 	public void run() {
