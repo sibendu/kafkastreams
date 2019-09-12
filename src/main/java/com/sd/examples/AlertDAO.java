@@ -12,7 +12,7 @@ class AlertDAO {
 		 
 		AlertDAO dao = new AlertDAO("localhost:3306/kafka", "root", "password");
 		
-		dao.processAlert("FREQUENT_TXN", new Date(), "TEST", 5, "High txnx in 1 minute", "NEW");
+		dao.processAlert("FREQUENT_TXN", null, "TEST", 5, "High txnx in 1 minute", "NEW");
 		
 		System.out.println("Alert created .. ");
 		
