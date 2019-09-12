@@ -13,7 +13,7 @@ import java.util.Properties;
  * 
  * @author www.tutorialkart.com
  */
-public class SampleKafkaConsumer extends Thread {
+public class AlertHandler extends Thread {
 	private final KafkaConsumer consumer;
 	private final String topic;
 	private String clientId;
@@ -65,16 +65,16 @@ public class SampleKafkaConsumer extends Thread {
 			ConsumerRecords<Integer, String> records = consumer.poll(1000);
 			for (ConsumerRecord record : records) {
 				
-				String account = record.key() ;
+				String account = record.key().toString() ;
 				String details = account;
-				String value = record.value();
+				String value = record.value().toString();
 				
-				System.out.println("Received message: (" + key + ", " + value + ") at offset "
+				System.out.println("Received message: (" + account + ", " + value + ") at offset "
 						+ record.offset());
 				
 				Integer no_access = 0;
 				try {
-					no_access = Inetger.parseInt(value);
+					no_access = Integer.parseInt(value);
 				} catch (Exception e) {
 					System.out.println("Error in inserting alert: " + e.getMessage());
 				}
