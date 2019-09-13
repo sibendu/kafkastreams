@@ -53,7 +53,7 @@ public class AlertHandler extends Thread {
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
 				"org.apache.kafka.common.serialization.StringDeserializer");
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-				"org.apache.kafka.common.serialization.StringDeserializer");
+				"org.apache.kafka.common.serialization.LongDeserializer");
 
 		consumer = new KafkaConsumer(props);
 		

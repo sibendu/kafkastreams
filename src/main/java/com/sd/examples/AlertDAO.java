@@ -10,7 +10,7 @@ class AlertDAO {
 	
 	public static void main(String args[]) throws Exception {
 		 
-		AlertDAO dao = new AlertDAO("localhost:3306/kafka", "root", "password");
+		AlertDAO dao = new AlertDAO("129.213.158.157:3306/kafka", "root", "password");
 		
 		dao.processAlert("FREQUENT_TXN", null, "TEST", 5, "High txnx in 1 minute", "NEW");
 		
