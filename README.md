@@ -11,7 +11,9 @@ com.sd.examples.AcTxnGenerator : Generates dummy transactions; sends to KAFKA_BR
 com.sd.examples.FrequentTxnProcessor : Stream processor, monitors KAFKA_TOPIC, if same more than 5 txns on same account within 1 minutes tumbling windows, posts a message to KAFKA_ALERT_QUEUE 
 
 # Note
-1. In order to make Kafka producers and consumers work on K8S, need to set advertised.listeners in $KAFKA_HOME/config/server.properties 
+1. Need to configure security lists to allow traffic from OKE to Kafka vm
+
+2. In order to make Kafka producers and consumers work on K8S, need to set advertised.listeners in $KAFKA_HOME/config/server.properties 
 Uncomment and set :: #advertised.listeners=PLAINTEXT://your.host.name:9092
 
-2. Need to configure security lists to allow traffic from OKE to Kafka vm
+3. Do not forget to configure MySQL for remote access
