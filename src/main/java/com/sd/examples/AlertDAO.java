@@ -1,6 +1,6 @@
 package com.sd.examples; 
 
-import java.sql.*;  
+import java.sql.*;   
 
 class AlertDAO { 
 	 
