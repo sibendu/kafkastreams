@@ -50,7 +50,7 @@ public class SimultaneousTxnProcessor {
 		String inputTopic_atm = args.length > 1 ? args[1] : "input";
 		String inputTopic_web = args.length > 1 ? args[1] : "input_webtxn";
 		String outputTopic = args.length > 2 ? args[2] : "alert_accounts";
-		int interval = args.length > 3 ? Integer.parseInt(args[3]) : 30; // Default interval 30 seconds 
+		int interval = args.length > 3 ? Integer.parseInt(args[3]) : 30; // Default interval 30 seconds
 
 		if (System.getenv("KAFKA_BROKER_URL") != null) {
 			bootstrapServers = System.getenv("KAFKA_BROKER_URL");
@@ -59,7 +59,7 @@ public class SimultaneousTxnProcessor {
 		if (System.getenv("KAFKA_TOPIC_1") != null) {
 			inputTopic_atm = System.getenv("KAFKA_TOPIC_1");
 		}
-		
+
 		if (System.getenv("KAFKA_TOPIC_2") != null) {
 			inputTopic_web = System.getenv("KAFKA_TOPIC_2");
 		}
@@ -67,12 +67,11 @@ public class SimultaneousTxnProcessor {
 		if (System.getenv("KAFKA_TOPIC_OUT") != null) {
 			outputTopic = System.getenv("KAFKA_TOPIC_OUT");
 		}
-		
+
 		if (System.getenv("KAFKA_INTERVAL") != null) {
 			interval = Integer.parseInt(System.getenv("KAFKA_INTERVAL"));
 		}
 
-		
 		final Properties streamsConfiguration = new Properties();
 		// Give the Streams application a unique name. The name must be unique in the
 		// Kafka cluster
@@ -110,7 +109,7 @@ public class SimultaneousTxnProcessor {
 		// from either of
 		// the two joined streams during the defined join window.
 		final KStream<String, String> simultaneousTxn = views_atmtxn.join(views_webtxn,
-				 (key, account) -> "key=" + key + ", account=" + account, // ValueJoiner 
+				(key, account) -> "key=" + key + ", account=" + account, // ValueJoiner
 				// KStream-KStream joins are always windowed joins, hence we must provide a join
 				// window.
 				JoinWindows.of(Duration.ofSeconds(interval)),
@@ -124,7 +123,19 @@ public class SimultaneousTxnProcessor {
 						Serdes.String(), /* left value */
 						Serdes.String() /* right value */
 				));
-		
+
+		/*
+		 * Sample join
+		 * 
+		 * https://dzone.com/articles/join-semantics-in-kafka-streams
+		 * 
+		 * KStream<String, String> joined = left.join(right, (leftValue, rightValue) ->
+		 * "left=" + leftValue + ", right=" + rightValue,
+		 * JoinWindows.of(TimeUnit.MINUTES.toMillis(5)), Serdes.String(), Serdes.Long(),
+		 * Serdes.Double() );
+		 * 
+		 */
+
 		// Write the results to the output topic.
 		simultaneousTxn.to(outputTopic);
 
