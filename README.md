@@ -1,4 +1,5 @@
 # kafkastreams
+
 This is a sample project with Kafka stream processors deployed on K8S. Kafka server is outside K8S
 It is tested with OCI vm and OKE. 
 
@@ -20,10 +21,13 @@ interval are configurable using deploy-stream-frequent-txn.yaml. Generates alert
 3. com.sd.examples.AlertHandler: Checks input topic (configurable parameter in deploy-account-alert-handler.yaml) for stream of alert messages, as produced by above two streams. Processes the alert message, inserts a record in the MySQL DB (parameters in yaml)
 
 ## Other classes in this project:
-com.sd.examples.AcTxnGenerator : Generates dummy records; sends to KAFKA_BROKER_URL, KAFKA_TOPIC  (parameterized as env variables)
-com.sd.examples.SampleKafkaProducer : Generates dummy records; can enter input through console 
+
+1. com.sd.examples.AcTxnGenerator : Generates dummy records; sends to KAFKA_BROKER_URL, KAFKA_TOPIC  (parameterized as env variables)
+
+2. com.sd.examples.SampleKafkaProducer : Generates dummy records; can enter input through console 
 
 ## Note
+
 1. Need to configure security lists to allow traffic from OKE to Kafka vm
 
 2. In order to make Kafka producers and consumers work on K8S, need to set advertised.listeners in $KAFKA_HOME/config/server.properties 
