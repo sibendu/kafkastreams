@@ -3,10 +3,16 @@
 This is a sample project with Kafka stream processors deployed on K8S. Kafka server is outside K8S
 It is tested with OCI vm and OKE. 
 
+## Kafka configuration 
+
+Start the broker, and create following topics.
+1. input
+2. input_webtxn
+3. alert_accounts
 
 ## To generate stream processors, package and deploy them on k8s, use below steps - 
 
-1. Generate executable jar: mvn clean install  -Dmain.Class="<Main Class Name>"
+1. Generate executable jar: mvn clean install  -Dmain.Class="Main_Class"
 2. Generate docker image:  docker build -t sibendudas/<image_name> .
 3. Push to docker hub:  docker push sibendudas/<image_name> .
 4. Deploy: kubectl apply -f deploy-***.yaml
