@@ -53,7 +53,7 @@ public class AlertHandler extends Thread {
 		props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
 				"org.apache.kafka.common.serialization.StringDeserializer");
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-				"org.apache.kafka.common.serialization.LongDeserializer");
+				"org.apache.kafka.common.serialization.StringDeserializer");
 
 		consumer = new KafkaConsumer(props);
 		
@@ -67,27 +67,24 @@ public class AlertHandler extends Thread {
 			for (ConsumerRecord record : records) {
 				
 				String account = record.key() == null? "":record.key().toString() ;
-				String details = account;
 				String value = record.value() ==null? "":record.value().toString();
+				//String details = account + " has " + value + " transactions within 1 minute" ;
 				
 				System.out.println("Received message: (" + account + ", " + value + ") at offset "
 						+ record.offset());
 				
-				Integer no_access = 0;
-				try {
-					no_access = Integer.parseInt(value);
-				} catch (Exception e) {
-					System.out.println("Error in inserting alert: " + e.getMessage());
-				}
-				
-				processAlert(account, no_access, details);
+				processAlert(account, 0, value);
 			}
 		}
 	}
 
 	public void processAlert(String account, Integer no_access, String details) {
 		try {
-			dao.processAlert("FREQUENT_TXN", null, account, no_access, details, "NEW");
+			String code = "FREQUENT_TXN";
+			if(details != null && details.contains("multiple channels")) {
+				code = "TXN_ACROSS_CHaNNELS";
+			}
+			dao.processAlert(code, null, account, no_access, details, "NEW");
 			System.out.println("Alert record created in DB");
 		} catch (Exception e) {
 			System.out.println("Error in inserting alert: " + e.getMessage());

@@ -45,6 +45,7 @@ public class FrequentTxnProcessor {
     	String bootstrapServers = args.length > 0 ? args[0] : "localhost:9092";
     	String inputTopic = args.length > 1 ? args[1] : "input";
     	String outputTopic = args.length > 2 ? args[2] : "alert_accounts";    
+    	int interval = args.length > 3 ? Integer.parseInt(args[3]) : 1;
     	
 		if(System.getenv("KAFKA_BROKER_URL") != null) {
 			bootstrapServers = System.getenv("KAFKA_BROKER_URL");
@@ -56,6 +57,10 @@ public class FrequentTxnProcessor {
 		
 		if(System.getenv("KAFKA_TOPIC_OUT") != null) {
 			outputTopic = System.getenv("KAFKA_TOPIC_OUT");
+		}
+		
+		if(System.getenv("KAFKA_INTERVAL") != null) {
+			interval = Integer.parseInt(System.getenv("KAFKA_INTERVAL"));
 		}
     	
         final Properties streamsConfiguration = new Properties();
@@ -73,7 +78,7 @@ public class FrequentTxnProcessor {
         streamsConfiguration.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 500);
 
         final Serde<String> stringSerde = Serdes.String();
-        final Serde<Long> longSerde = Serdes.Long();
+        //final Serde<Long> longSerde = Serdes.Long();
 
         final StreamsBuilder builder = new StreamsBuilder();
 
@@ -88,7 +93,7 @@ public class FrequentTxnProcessor {
           // count users, using one-minute tumbling windows;
           // no need to specify explicit serdes because the resulting key and value types match our default serde settings
           .groupByKey()
-          .windowedBy(TimeWindows.of(Duration.ofMinutes(1)))
+          .windowedBy(TimeWindows.of(Duration.ofMinutes(interval)))
           .count()
           // get users whose one-minute count is >= 3
           .filter((windowedUserId, count) -> count >= 3);
@@ -97,7 +102,7 @@ public class FrequentTxnProcessor {
         // which would normally stop at the filter() above.  We use the operations below only to
         // "massage" the output data so it is easier to inspect on the console via
         // kafka-console-consumer.
-        final KStream<String, Long> anomalousUsersForConsole = anomalousUsers
+        final KStream<String, String> anomalousUsersForConsole = anomalousUsers
           // get rid of windows (and the underlying KTable) by transforming the KTable to a KStream
           .toStream()
           // sanitize the output by removing null record values (again, we do this only so that the
@@ -105,10 +110,10 @@ public class FrequentTxnProcessor {
           // because LongDeserializer fails on null values, and even though we could configure
           // kafka-console-consumer to skip messages on error the output still wouldn't look pretty)
           .filter((windowedUserId, count) -> count != null)
-          .map((windowedUserId, count) -> new KeyValue<>(windowedUserId.toString(), count));
+          .map((windowedUserId, count) -> new KeyValue<>(windowedUserId.toString(), count + " transactions within 1 minute"));
 
-        // write to the result topic
-        anomalousUsersForConsole.to(outputTopic, Produced.with(stringSerde, longSerde)); 
+        // write to the result topic 
+        anomalousUsersForConsole.to(outputTopic, Produced.with(stringSerde, stringSerde)); 
 
         final KafkaStreams streams = new KafkaStreams(builder.build(), streamsConfiguration);
         // Always (and unconditionally) clean local state prior to starting the processing topology.

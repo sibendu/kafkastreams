@@ -109,7 +109,7 @@ public class SimultaneousTxnProcessor {
 		// from either of
 		// the two joined streams during the defined join window.
 		final KStream<String, String> simultaneousTxn = views_atmtxn.join(views_webtxn,
-				(key, account) -> "key=" + key + ", account=" + account, // ValueJoiner
+				(key, value) -> key, // ValueJoiner
 				// KStream-KStream joins are always windowed joins, hence we must provide a join
 				// window.
 				JoinWindows.of(Duration.ofSeconds(interval)),
@@ -122,8 +122,12 @@ public class SimultaneousTxnProcessor {
 				Joined.with(Serdes.String(), /* key */
 						Serdes.String(), /* left value */
 						Serdes.String() /* right value */
-				));
+				))
+				.map((key, value) -> new KeyValue<>(key, "Txns across channels within 30 seconds"));
 
+//		final KStream<String, String> simultaneousTxn = simulTxn
+		          
+		
 		/*
 		 * Sample join
 		 * 
