@@ -22,4 +22,4 @@ spec:
         - name: KAFKA_TOPIC_OUT
           value: alert_accounts
         - name: KAFKA_INTERVAL
-          value: 30
+          value: "30"

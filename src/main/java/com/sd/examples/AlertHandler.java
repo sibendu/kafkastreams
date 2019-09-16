@@ -66,7 +66,7 @@ public class AlertHandler extends Thread {
 			ConsumerRecords<Integer, String> records = consumer.poll(1000);
 			for (ConsumerRecord record : records) {
 				
-				String account = record.key() == null? "":record.key().toString() ;
+				String account = record.key() == null? "": "@:" + record.key().toString();
 				String value = record.value() ==null? "":record.value().toString();
 				//String details = account + " has " + value + " transactions within 1 minute" ;
 				
@@ -81,8 +81,8 @@ public class AlertHandler extends Thread {
 	public void processAlert(String account, Integer no_access, String details) {
 		try {
 			String code = "FREQUENT_TXN";
-			if(details != null && details.contains("multiple channels")) {
-				code = "TXN_ACROSS_CHaNNELS";
+			if(details != null && details.contains("across channels")) {
+				code = "TXN_ACROSS_CHANNELS";
 			}
 			dao.processAlert(code, null, account, no_access, details, "NEW");
 			System.out.println("Alert record created in DB");
