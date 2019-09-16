@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: accountalerthandler
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: accountalerthandler
+    spec:
+      containers:
+      - name: accountalerthandler
+        image: sibendudas/accountalerthandler
+        env:
+        - name: KAFKA_BROKER_URL
+          value: 129.213.158.157:9092
+        - name: KAFKA_TOPIC
+          value: alert_accounts
+        - name: DB_URL
+          value: 129.213.158.157:3306/kafka
+        - name: DB_USER
+          value: root
+        - name: DB_PWD
+          value: password

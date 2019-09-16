@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: simultaneoustxnprocessor
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: simultaneoustxnprocessor
+    spec:
+      containers:
+      - name: simultaneoustxnprocessor
+        image: sibendudas/simultaneoustxnprocessor
+        env:
+        - name: KAFKA_BROKER_URL
+          value: 129.213.158.157:9092
+        - name: KAFKA_TOPIC_1
+          value: input
+        - name: KAFKA_TOPIC_2
+          value: input_webtxn
+        - name: KAFKA_TOPIC_OUT
+          value: alert_accounts
+        - name: KAFKA_INTERVAL
+          value: 30

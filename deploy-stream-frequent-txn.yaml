@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: frequenttxnprocessor
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frequenttxnprocessor
+    spec:
+      containers:
+      - name: frequenttxnprocessor
+        image: sibendudas/frequenttxnprocessor
+        env:
+        - name: KAFKA_BROKER_URL
+          value: 129.213.158.157:9092
+        - name: KAFKA_TOPIC
+          value: input
+        - name: KAFKA_TOPIC_OUT
+          value: alert_accounts
+        - name: KAFKA_INTERVAL
+          value: "1"
