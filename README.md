@@ -2,18 +2,31 @@
 This is a sample project with Kafka stream processors deployed on K8S. Kafka server is outside K8S
 It is tested with OCI vm and OKE. 
 
-# To generate executable jar - 
-mvn clean install  -Dmain.Class="<Main Class Name>"   
 
-Following are the main classes in this project:
------------------------------------------------
-com.sd.examples.AcTxnGenerator : Generates dummy transactions; sends to KAFKA_BROKER_URL, KAFKA_TOPIC  (parameterized as env variables)
-com.sd.examples.FrequentTxnProcessor : Stream processor, monitors KAFKA_TOPIC, if same more than 5 txns on same account within 1 minutes tumbling windows, posts a message to KAFKA_ALERT_QUEUE 
+## To generate stream processors, package and deploy them on k8s, use below steps - 
 
-# Note
+1. Generate executable jar: mvn clean install  -Dmain.Class="<Main Class Name>"
+2. Generate docker image:  docker build -t sibendudas/<image_name> .
+3. Push to docker hub:  docker push sibendudas/<image_name> .
+4. Deploy: kubectl apply -f deploy-***.yaml
+  
+This example has following three processors:
+
+1. com.sd.examples.FrequentTxnProcessor : Checks on a topic for multiple txns on same account# within n minutes interval. Topic name and 
+interval are configurable using deploy-stream-frequent-txn.yaml. Generates alert message in output topic.
+
+2. com.sd.examples.SimultaneousTxnProcessor: Checks streams across two topics for records related to same account# within n seconds interval. Topic name and interval are configurable through deploy-stream-simultaneous-txn.yaml. Generates alert message in output topic
+
+3. com.sd.examples.AlertHandler: Checks input topic (configurable parameter in deploy-account-alert-handler.yaml) for stream of alert messages, as produced by above two streams. Processes the alert message, inserts a record in the MySQL DB (parameters in yaml)
+
+## Other classes in this project:
+com.sd.examples.AcTxnGenerator : Generates dummy records; sends to KAFKA_BROKER_URL, KAFKA_TOPIC  (parameterized as env variables)
+com.sd.examples.SampleKafkaProducer : Generates dummy records; can enter input through console 
+
+## Note
 1. Need to configure security lists to allow traffic from OKE to Kafka vm
 
 2. In order to make Kafka producers and consumers work on K8S, need to set advertised.listeners in $KAFKA_HOME/config/server.properties 
 Uncomment and set :: #advertised.listeners=PLAINTEXT://your.host.name:9092
 
-3. Do not forget to configure MySQL for remote access
+3. MySQL need to be configured for remote access
