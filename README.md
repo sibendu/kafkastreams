@@ -1,4 +1,4 @@
-# kafkastreams
+# Kafka Streams Demo
 
 This is a sample project with Kafka stream processors deployed on K8S. Kafka server is outside K8S
 It is tested with OCI vm and OKE. 
