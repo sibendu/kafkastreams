@@ -26,11 +26,15 @@ interval are configurable using deploy-stream-frequent-txn.yaml. Generates alert
 
 3. com.sd.examples.AlertHandler: Checks input topic (configurable parameter in deploy-account-alert-handler.yaml) for stream of alert messages, as produced by above two streams. Processes the alert message, inserts a record in the MySQL DB (parameters in yaml)
 
-## Other classes in this project:
-
+Few other classes that might be useful:
 1. com.sd.examples.AcTxnGenerator : Generates dummy records; sends to KAFKA_BROKER_URL, KAFKA_TOPIC  (parameterized as env variables)
-
 2. com.sd.examples.SampleKafkaProducer : Generates dummy records; can enter input through console 
+
+## To visualize data
+
+1. Configure Kafka broker to start with JMX exporter 
+2. Install and run prometheus; configured to scrape JMX metrics
+3. Grafana dashboard to visualize the txns, and the alert records in MySQL tables 
 
 ## Note
 
