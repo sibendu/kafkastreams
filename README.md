@@ -5,7 +5,7 @@ It is tested with OCI vm and OKE.
 
 ## Kafka configuration 
 
-Start the broker, and create three topics.
+Start the broker, and create three topics. 
 1. input
 2. input_webtxn
 3. alert_accounts
