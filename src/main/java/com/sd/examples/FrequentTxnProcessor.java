@@ -24,12 +24,24 @@ import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.TimeWindows;
 import org.apache.kafka.streams.kstream.Windowed;
 
+import org.apache.kafka.streams.errors.LogAndContinueExceptionHandler;
+
+import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
+
+
 import java.time.Duration;
 import java.util.Properties;
+
+import org.apache.kafka.common.serialization.Serializer;
+import org.apache.kafka.common.serialization.Deserializer;
+
 
 /**
  * In this example, we implement a simple WordCount program using the high-level Streams DSL
@@ -42,9 +54,9 @@ public class FrequentTxnProcessor {
     public static void main(String[] args) throws Exception {
     	System.out.println("Starting ..");
     	
-    	String bootstrapServers = args.length > 0 ? args[0] : "localhost:9092";
-    	String inputTopic = args.length > 1 ? args[1] : "input";
-    	String outputTopic = args.length > 2 ? args[2] : "alert_accounts";    
+    	String bootstrapServers = args.length > 0 ? args[0] : "129.213.158.157:9092";
+    	String inputTopic = args.length > 1 ? args[1] : "jdbc-mysql-account_txn";
+    	String outputTopic = args.length > 2 ? args[2] : "alerts";    
     	int interval = args.length > 3 ? Integer.parseInt(args[3]) : 1;
     	
 		if(System.getenv("KAFKA_BROKER_URL") != null) {
@@ -66,30 +78,58 @@ public class FrequentTxnProcessor {
         final Properties streamsConfiguration = new Properties();
         // Give the Streams application a unique name.  The name must be unique in the Kafka cluster
         // against which the application is run.
-        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "anomaly-detection-example");
-        streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "anomaly-detection-example-client");
+        streamsConfiguration.put(StreamsConfig.APPLICATION_ID_CONFIG, "frequent-txn");
+        streamsConfiguration.put(StreamsConfig.CLIENT_ID_CONFIG, "frequent-txn-client");
         // Where to find Kafka broker(s).
         streamsConfiguration.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        // Specify default (de)serializers for record keys and for record values.
-        streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        
         // Set the commit interval to 500ms so that any changes are flushed frequently. The low latency
         // would be important for anomaly detection.
         streamsConfiguration.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 500);
 
-        final Serde<String> stringSerde = Serdes.String();
-        //final Serde<Long> longSerde = Serdes.Long();
-
+        //streamsConfiguration.put("default.deserialization.exception.handler", LogAndContinueExceptionHandler.class);
+        
+        
+        //streamsConfiguration.put("key.serializer", "org.apache.kafka.connect.json.JsonConverter");
+        //streamsConfiguration.put("key.deserializer", "org.apache.kafka.connect.json.JsonConverter");
+        //streamsConfiguration.put("value.serializer", "org.apache.kafka.connect.json.JsonConverter");
+        //streamsConfiguration.put("value.deserializer", "org.apache.kafka.connect.json.JsonConverter");
+        
+        final Serde <String> stringSerde = Serdes.String();
+        final Serde <Long> longSerde = Serdes.Long();
+        
+        //Make a Serde for AccountTxn
+        Map <String, Object> serdeProps = new HashMap <> ();
+        final Serializer <AccountTxn> accountTxnSerializer = new JsonPOJOSerializer<>();
+        serdeProps.put("JsonPOJOClass", AccountTxn.class);
+        accountTxnSerializer.configure(serdeProps, false);
+        
+        final Deserializer <AccountTxn> accountTxnDeserializer = new JsonPOJODeserializer<>();
+        serdeProps.put("JsonPOJOClass", AccountTxn.class);
+        accountTxnDeserializer.configure(serdeProps, false);
+        
+        //final Serde <AccountTxn> accountTxnSerde = Serdes.serdeFrom(accountTxnSerializer, accountTxnDeserializer);
+        final Serde <AccountTxn> accountTxnSerde = Serdes.serdeFrom(accountTxnSerializer, accountTxnDeserializer);        
+        System.out.println("accountTxnSerde :: " + accountTxnSerde.getClass().getName());
+        
+        // Specify default (de)serializers for record keys and for record values.
+        streamsConfiguration.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, stringSerde.getClass().getName());
+        streamsConfiguration.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, stringSerde.getClass().getName());
+        
+        
         final StreamsBuilder builder = new StreamsBuilder();
-
+		
         // Read the source stream.  In this example, we ignore whatever is stored in the record key and
         // assume the record value contains the username (and each record would represent a single
         // click by the corresponding user).
-        final KStream<String, String> views = builder.stream(inputTopic);
-
+        
+        //System.out.println("1");
+        final KStream<String, AccountTxn> views = builder.stream(inputTopic, Consumed.with(Serdes.String(), accountTxnSerde));
+        //System.out.println("2");
+        
         final KTable<Windowed<String>, Long> anomalousUsers = views
           // map the user name as key, because the subsequent counting is performed based on the key
-          .map((ignoredKey, username) -> new KeyValue<>(username, username))
+          .map((ignoredKey, account) -> new KeyValue<>(account.getAccount(), account.getAccount()))
           // count users, using one-minute tumbling windows;
           // no need to specify explicit serdes because the resulting key and value types match our default serde settings
           .groupByKey()
@@ -97,7 +137,9 @@ public class FrequentTxnProcessor {
           .count()
           // get users whose one-minute count is >= 3
           .filter((windowedUserId, count) -> count >= 3);
-
+        
+        //System.out.println("3");
+        
         // Note: The following operations would NOT be needed for the actual anomaly detection,
         // which would normally stop at the filter() above.  We use the operations below only to
         // "massage" the output data so it is easier to inspect on the console via
@@ -111,7 +153,9 @@ public class FrequentTxnProcessor {
           // kafka-console-consumer to skip messages on error the output still wouldn't look pretty)
           .filter((windowedUserId, count) -> count != null)
           .map((windowedUserId, count) -> new KeyValue<>(windowedUserId.toString(), count + " transactions within 1 minute"));
-
+        
+        //System.out.println("4");
+        
         // write to the result topic 
         anomalousUsersForConsole.to(outputTopic, Produced.with(stringSerde, stringSerde)); 
 
@@ -131,6 +175,6 @@ public class FrequentTxnProcessor {
 
         // Add shutdown hook to respond to SIGTERM and gracefully close Kafka Streams
         Runtime.getRuntime().addShutdownHook(new Thread(streams::close));
-        System.out.println("Reached end");
+        System.out.println("Reached end ..");
     }
 }
