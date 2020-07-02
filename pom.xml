@@ -26,7 +26,7 @@
 		<kafka.version>2.3.0</kafka.version>
 		<slf4j.version>1.7.7</slf4j.version>
 		<log4j.version>1.2.17</log4j.version>
-		<mysql.version>5.1.6</mysql.version>
+		<mysql.version>8.0.16</mysql.version>
 		<main.Class>com.sd.examples.AcTxnGenerator</main.Class>
 	</properties>
 
